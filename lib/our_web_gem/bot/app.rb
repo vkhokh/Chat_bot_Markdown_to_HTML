@@ -30,7 +30,7 @@ module OurWebGem
         return if message.text.nil?
 
         chat_id = message.chat.id
-        text = message.text.strip
+        text = extract_text_with_entities(message).strip
         session = @sessions.session_for(chat_id)
 
         case text
@@ -72,7 +72,7 @@ module OurWebGem
       end
 
       def handle_history(bot, chat_id, session)
-        if session.has_history?
+        if session.history?
           send_message(bot, chat_id, Formatter.format_history(session.last_markdown))
         else
           send_message(bot, chat_id, Formatter.no_history_message)
@@ -80,7 +80,7 @@ module OurWebGem
       end
 
       def handle_repeat(bot, chat_id, session)
-        if session.has_history?
+        if session.history?
           send_message(bot, chat_id, Formatter.format_repeat(session.last_html))
         else
           send_message(bot, chat_id, Formatter.no_history_message)
@@ -109,6 +109,49 @@ module OurWebGem
         session.reset_state
 
         send_message(bot, chat_id, Formatter.format_html(html))
+      end
+
+      def extract_text_with_entities(message)
+        text = message.text.to_s
+
+        return text if message.entities.nil? || message.entities.empty?
+
+        restore_markdown_entities(text, message.entities)
+      end
+
+      def restore_markdown_entities(text, entities)
+        result = text.dup
+        sorted_entities = entities.sort_by(&:offset).reverse
+
+        sorted_entities.each do |entity|
+          start_index = entity.offset
+          end_index = entity.offset + entity.length
+          opening, closing = markdown_symbols_for(entity.type)
+
+          next if opening.nil? || closing.nil?
+
+          result.insert(end_index, closing)
+          result.insert(start_index, opening)
+        end
+
+        result
+      end
+
+      def markdown_symbols_for(type)
+        case type
+        when "bold"
+          ["**", "**"]
+        when "italic"
+          ["*", "*"]
+        when "code"
+          ["`", "`"]
+        when "pre"
+          ["```", "```"]
+        when "strikethrough"
+          ["~~", "~~"]
+        else
+          [nil, nil]
+        end
       end
 
       def handle_error(bot, message, error)

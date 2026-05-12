@@ -30,7 +30,7 @@ module OurWebGem
         @last_html = html
       end
 
-      def has_history?
+      def history?
         !@last_markdown.nil? && !@last_html.nil?
       end
 

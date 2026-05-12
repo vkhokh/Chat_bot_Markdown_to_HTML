@@ -30,18 +30,18 @@ RSpec.describe OurWebGem::Bot::UserSession do
   end
 
   it "knows when history exists" do
-    expect(session).not_to have_history
+    expect(session).not_to be_history
 
     session.save_conversion("# Hello", "<h1>Hello</h1>")
 
-    expect(session).to have_history
+    expect(session).to be_history
   end
 
   it "can clear history" do
     session.save_conversion("# Hello", "<h1>Hello</h1>")
     session.clear_history
 
-    expect(session).not_to have_history
+    expect(session).not_to be_history
     expect(session.last_markdown).to be_nil
     expect(session.last_html).to be_nil
   end

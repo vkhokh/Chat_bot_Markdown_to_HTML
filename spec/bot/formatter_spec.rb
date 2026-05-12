@@ -9,6 +9,9 @@ RSpec.describe OurWebGem::Bot::Formatter do
 
       expect(result).to include("/convert")
       expect(result).to include("/example")
+      expect(result).to include("/history")
+      expect(result).to include("/repeat")
+      expect(result).to include("/clear")
       expect(result).to include("/help")
     end
 
@@ -56,33 +59,41 @@ RSpec.describe OurWebGem::Bot::Formatter do
       expect(result).to include("/help")
     end
   end
-describe ".start_message" do
-  it "contains main bot commands" do
-    result = described_class.start_message
 
-    expect(result).to include("/convert")
-    expect(result).to include("/example")
-    expect(result).to include("/history")
-    expect(result).to include("/repeat")
-    expect(result).to include("/clear")
-    expect(result).to include("/help")
+  describe ".no_history_message" do
+    it "returns message about empty history" do
+      result = described_class.no_history_message
+
+      expect(result).to include("нет сохранённого запроса")
+    end
   end
-end
-describe ".no_history_message" do
-  it "returns message about empty history" do
-    result = described_class.no_history_message
 
-    expect(result).to include("нет сохранённого запроса")
+  describe ".history_cleared_message" do
+    it "returns message about cleared history" do
+      result = described_class.history_cleared_message
+
+      expect(result).to include("История очищена")
+    end
   end
-end
 
-describe ".history_cleared_message" do
-  it "returns message about cleared history" do
-    result = described_class.history_cleared_message
+  describe ".format_history" do
+    it "formats markdown history" do
+      result = described_class.format_history("# Hello")
 
-    expect(result).to include("История очищена")
+      expect(result).to include("Твой последний Markdown-запрос:")
+      expect(result).to include("# Hello")
+    end
   end
-end
+
+  describe ".format_repeat" do
+    it "formats html history" do
+      result = described_class.format_repeat("<h1>Hello</h1>")
+
+      expect(result).to include("Твой последний HTML-результат:")
+      expect(result).to include("<h1>Hello</h1>")
+    end
+  end
+
   describe ".format_html" do
     it "formats html result" do
       result = described_class.format_html("<h1>Hello</h1>")
