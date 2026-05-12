@@ -17,15 +17,18 @@ module OurWebGem
           в HTML-код.
 
           Команды:
-          /convert — начать конвертацию
-          /example — показать пример
-          /help — справка
+          /convert - начать конвертацию
+          /example - показать пример
+          /history - показать последний Markdown-запрос
+          /repeat - повторить последний HTML-результат
+          /clear - очистить историю
+          /help - справка
         TEXT
       end
 
       def self.help_message
         <<~TEXT
-          Я конвертирую Markdown-текст в HTML.
+          Я конвертирую Markdown-текст в HTML и запоминаю твой последний запрос.
 
           Как пользоваться:
           1. Напиши /convert
@@ -33,9 +36,12 @@ module OurWebGem
           3. Я верну готовый HTML-код
 
           Команды:
-          /convert — начать конвертацию Markdown в HTML
-          /example — показать пример Markdown и результата
-          /help — показать справку
+          /convert - начать конвертацию Markdown в HTML
+          /example - показать пример Markdown и результата
+          /history - показать последний Markdown-запрос
+          /repeat - заново показать последний HTML-результат
+          /clear - очистить историю пользователя
+          /help - показать справку
 
           Пример Markdown:
           # Заголовок
@@ -93,16 +99,30 @@ module OurWebGem
         TEXT
       end
 
+      def self.no_history_message
+        <<~TEXT
+          У тебя пока нет сохранённого запроса.
+
+          Напиши /convert и отправь Markdown-текст.
+        TEXT
+      end
+
+      def self.history_cleared_message
+        "История очищена. Можешь начать заново через /convert."
+      end
+
+      def self.format_history(markdown)
+        format_long_text("Твой последний Markdown-запрос:\n\n#{markdown}")
+      end
+
+      def self.format_repeat(html)
+        format_long_text("Твой последний HTML-результат:\n\n#{html}")
+      end
+
       def self.format_html(html)
         return "Не получилось получить HTML." if html.nil? || html.strip.empty?
 
-        text = "Готово! HTML:\n\n#{html}"
-
-        if text.length > MAX_MESSAGE_LENGTH
-          "#{text[0...MAX_MESSAGE_LENGTH]}\n\nСообщение слишком большое, я обрезал результат."
-        else
-          text
-        end
+        format_long_text("Готово! HTML:\n\n#{html}")
       end
 
       def self.error_message
@@ -111,6 +131,14 @@ module OurWebGem
 
           Попробуй ещё раз или напиши /convert.
         TEXT
+      end
+
+      def self.format_long_text(text)
+        if text.length > MAX_MESSAGE_LENGTH
+          "#{text[0...MAX_MESSAGE_LENGTH]}\n\nСообщение слишком большое, я обрезал результат."
+        else
+          text
+        end
       end
     end
   end

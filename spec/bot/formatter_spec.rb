@@ -56,7 +56,33 @@ RSpec.describe OurWebGem::Bot::Formatter do
       expect(result).to include("/help")
     end
   end
+describe ".start_message" do
+  it "contains main bot commands" do
+    result = described_class.start_message
 
+    expect(result).to include("/convert")
+    expect(result).to include("/example")
+    expect(result).to include("/history")
+    expect(result).to include("/repeat")
+    expect(result).to include("/clear")
+    expect(result).to include("/help")
+  end
+end
+describe ".no_history_message" do
+  it "returns message about empty history" do
+    result = described_class.no_history_message
+
+    expect(result).to include("нет сохранённого запроса")
+  end
+end
+
+describe ".history_cleared_message" do
+  it "returns message about cleared history" do
+    result = described_class.history_cleared_message
+
+    expect(result).to include("История очищена")
+  end
+end
   describe ".format_html" do
     it "formats html result" do
       result = described_class.format_html("<h1>Hello</h1>")
